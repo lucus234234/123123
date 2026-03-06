@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PMGC Pro Control Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        body { background: #0a0c0f; padding: 10px 20px; color: white; height: 100vh; overflow: auto; }
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(90deg, #14181f, #1e232b);
+            border: 2px solid #ff4d4d;
+            border-radius: 50px;
+            padding: 8px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 10px rgba(255,77,77,0.2);
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #ffb347;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        .nav-brand span {
+            color: #ff4d4d;
+            font-size: 20px;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        .nav-item {
+            padding: 6px 15px;
+            border-radius: 30px;
+            background: #1e232b;
+            border: 1px solid #2a2f38;
+            color: #8b98a9;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav-item:hover {
+            background: #2a2f38;
+            color: white;
+            border-color: #ff4d4d;
+        }
+        .nav-item.active {
+            background: #ff4d4d;
+            color: white;
+            border-color: #ff4d4d;
+        }
+        .nav-right {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        
+        h1 { margin-bottom: 8px; color: #ff4d4d; font-size: 22px; }
+        
+        .header-control {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #14181f;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #2a2f38;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-reset-all { background: #ef4444; color: white; }
+        .btn-reset-all:hover { background: #dc2626; }
+        .btn-reset-logos { background: #f97316; color: white; }
+        .btn-reset-logos:hover { background: #ea580c; }
+        .btn-reset-names { background: #3b82f6; color: white; }
+        .btn-reset-names:hover { background: #2563eb; }
+        .btn-clear-names { background: #8b5cf6; color: white; }
+        .btn-clear-names:hover { background: #7c3aed; }
+        .btn-add-team { 
+            background: #22c55e; 
+            color: black; 
+            font-size: 14px;
+            padding: 6px 15px;
+            margin-left: auto;
+        }
+        .btn-add-team:hover { background: #16a34a; }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+        }
+        
+        /* Teams Grid */
+        .teams-grid {
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding-bottom: 20px;
+            margin: 0 -5px;
+        }
+        
+        .team-card {
+            position: relative;
+            background: #14181f; 
+            border: 2px solid #2a2f38; 
+            border-radius: 12px; 
+            padding: 10px 8px;
+            transition: all 0.3s;
+            height: fit-content;
+            font-size: 13px;
+            margin: 0 5px;
+        }
+        .team-card.eliminated {
+            border-color: #6b7280; 
+            opacity: 0.7; 
+            background: #1a1e26;
+        }
+        
+        .delete-team-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: #ef4444;
+            color: white;
+            border: 2px solid #2a2f38;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 10;
+        }
+        .delete-team-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+            border-color: white;
+        }
+        
+        .team-header {
+            display: flex; 
+            gap: 6px; 
+            align-items: center; 
+            margin-bottom: 8px;
+        }
+        
+        .logo-container {
+            width: 40px;
+            height: 40px;
+            background: #1e232b;
+            border-radius: 8px;
+            border: 2px solid #2a2f38;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .logo-container:hover {
+            border-color: #ff4d4d;
+            transform: scale(1.05);
+        }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .logo-placeholder {
+            color: #8b98a9;
+            font-size: 9px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .team-name-input {
+            background: #1e232b; 
+            border: 1px solid #2a2f38; 
+            color: white;
+            padding: 4px 5px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            flex: 1;
+            min-width: 70px;
+        }
+        .team-name-input::placeholder {
+            color: #6b7280;
+            font-style: italic;
+            font-size: 10px;
+        }
+        
+        .team-number {
+            font-size: 10px;
+            color: #8b98a9;
+            background: #1e232b;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 1px solid #2a2f38;
+            white-space: nowrap;
+        }
+        
+        .hidden-input { display: none; }
+        
+        .stats-row {
+            display: flex; 
+            gap: 6px; 
+            margin-bottom: 8px; 
+        }
+        .stat-box {
+            background: #1e232b; 
+            border-radius: 6px; 
+            padding: 4px 2px;
+            text-align: center; 
+            flex: 1;
+        }
+        .stat-label { 
+            color: #8b98a9; 
+            font-size: 9px; 
+            margin-bottom: 2px; 
+        }
+        .stat-input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            padding: 2px 0;
+            border-radius: 4px;
+        }
+        .stat-input.elims-input {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        .total-value { 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #ffb347;
+            background: rgba(255,180,71,0.1);
+            padding: 4px 0;
+            border-radius: 4px;
+        }
+        
+        .player-status {
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 3px;
+            margin-bottom: 8px;
+            padding: 0 2px;
+        }
+        .player-dot {
+            width: 100%; 
+            aspect-ratio: 1; 
+            border-radius: 5px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.2s;
+            border: 1px solid transparent;
+            font-size: 10px;
+            min-width: 22px;
+        }
+        .player-dot.alive { background: #22c55e; color: black; }
+        .player-dot.knocked { background: #f97316; color: white; }
+        .player-dot.eliminated { background: #6b7280; color: white; }
+        .player-dot:hover { 
+            transform: scale(1.05); 
+            border-color: white;
+            border-width: 2px;
+        }
+        
+        .action-buttons {
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 4px;
+        }
+        .btn-kill, .btn-elim {
+            padding: 4px 2px; 
+            border: none; 
+            border-radius: 4px; 
+            font-weight: bold;
+            cursor: pointer; 
+            transition: 0.2s;
+            font-size: 10px;
+            text-align: center;
+        }
+        .btn-kill { background: #22c55e; color: black; }
+        .btn-elim { background: #ef4444; color: white; }
+        .btn-kill:hover, .btn-elim:hover { filter: brightness(1.2); }
+        
+        .info-box { 
+            background: #1e232b; 
+            border-left: 4px solid #22c55e; 
+            padding: 6px 10px; 
+            border-radius: 6px; 
+            margin: 5px 0; 
+            font-size: 12px;
+        }
+        .info-box a { color: #ffb347; text-decoration: none; }
+        .info-box a:hover { text-decoration: underline; }
+        
+        /* Save Match Section */
+        .save-match-section {
+            background: #14181f;
+            border: 2px solid #ff4d4d;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .save-match-title {
+            color: #ffb347;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .match-selector-save {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1;
+        }
+        .match-selector-save select {
+            background: #1e232b;
+            color: white;
+            border: 2px solid #ff4d4d;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        .btn-save-match {
+            background: #22c55e;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-save-match:hover {
+            background: #16a34a;
+            transform: scale(1.05);
+        }
+        .match-status {
+            color: #8b98a9;
+            font-size: 13px;
+            margin-left: auto;
+        }
+        
+        /* Custom Section */
+        .custom-container {
+            background: #14181f;
+            border: 2px solid #ff4d4d;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .custom-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ff4d4d;
+        }
+        .custom-header h2 {
+            color: #ffb347;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .custom-header span {
+            color: #ff4d4d;
+            font-size: 32px;
+        }
+        
+        .preview-box {
+            background: linear-gradient(135deg, #1a1e26, #14181f);
+            border: 2px solid #2a2f38;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .preview-title {
+            font-size: 36px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 rgba(255,77,77,0.3);
+            transition: all 0.3s;
+        }
+        
+        .custom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .custom-card {
+            background: #1e232b;
+            border: 1px solid #2a2f38;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .custom-card h3 {
+            color: #ffb347;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .color-picker-group label {
+            color: #8b98a9;
+            font-size: 13px;
+            min-width: 80px;
+        }
+        .color-picker-group input[type="color"] {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ff4d4d;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+        }
+        .color-value {
+            background: #2a2f38;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .font-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .font-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #2a2f38;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .font-option:hover {
+            border-color: #ff4d4d;
+            background: #323844;
+        }
+        .font-option.selected {
+            border-color: #ff4d4d;
+            background: #323844;
+            box-shadow: 0 0 15px rgba(255,77,77,0.3);
+        }
+        .font-preview {
+            flex: 1;
+            color: white;
+            font-size: 18px;
+        }
+        .font-preview.small {
+            font-size: 14px;
+            color: #8b98a9;
+        }
+        
+        /* Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #2a2f38;
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff4d4d;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid white;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #ff3333;
+        }
+        
+        /* Text Input */
+        input[type="text"] {
+            background: #1e232b;
+            border: 1px solid #2a2f38;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: 0.2s;
+            width: 100%;
+        }
+        input[type="text"]:focus {
+            border-color: #ff4d4d;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255,77,77,0.3);
+        }
+        
+        .btn-apply-custom {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 30px;
+        }
+        .btn-apply-custom:hover {
+            background: #ff3333;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255,77,77,0.5);
+        }
+        
+        .btn-reset-custom {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .btn-reset-custom:hover {
+            background: #dc2626;
+        }
+        
+        /* Statistics Toolbar */
+        .stats-toolbar {
+            background: #14181f;
+            border: 2px solid #ff4d4d;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .toolbar-title {
+            color: #ffb347;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .toolbar-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        .btn-tool {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-upload-bg {
+            background: #8b5cf6;
+            color: white;
+        }
+        .btn-upload-bg:hover {
+            background: #7c3aed;
+            transform: scale(1.05);
+        }
+        .btn-download-png {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-download-png:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+        .btn-reset-bg {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-reset-bg:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        .bg-file-name {
+            color: #8b98a9;
+            font-size: 12px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Match Selector Toolbar */
+        .match-toolbar {
+            background: #14181f;
+            border: 2px solid #ff4d4d;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .match-toolbar-title {
+            color: #ffb347;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .match-selector-view {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .match-selector-view select {
+            background: #1e232b;
+            color: white;
+            border: 2px solid #ff4d4d;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        .match-date-display {
+            color: #8b98a9;
+            font-size: 14px;
+        }
+        
+        /* Statistics Table */
+        .stats-container {
+            background: #14181f;
+            border: 2px solid #ff4d4d;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .stats-container.has-bg-image {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-blend-mode: overlay;
+        }
+        .stats-container.has-bg-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 12, 15, 0.85);
+            border-radius: 16px;
+            pointer-events: none;
+        }
+        .stats-container > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .stats-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff4d4d;
+        }
+        .stats-header h2 {
+            color: #ffb347;
+            font-size: 20px;
+        }
+        
+        .matches-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .matches-table th {
+            background: #ff4d4d;
+            color: white;
+            padding: 12px 8px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #2a2f38;
+        }
+        .matches-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #2a2f38;
+            font-size: 13px;
+        }
+        .matches-table tr:nth-child(even) {
+            background: rgba(30, 35, 43, 0.7);
+        }
+        .matches-table tr:hover {
+            background: rgba(42, 47, 56, 0.9);
+        }
+        .team-name-col {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .team-logo-small {
+            width: 24px;
+            height: 24px;
+            background: #1e232b;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .team-logo-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .rank-badge {
+            background: #ffb347;
+            color: black;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        .saved-badge {
+            background: #22c55e;
+            color: black;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+        
+        .summary-box {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .summary-item {
+            background: rgba(30, 35, 43, 0.8);
+            border: 1px solid #2a2f38;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        .summary-label {
+            color: #8b98a9;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .summary-value {
+            color: #ffb347;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1500px) {
+            .teams-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 1200px) {
+            .teams-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 700px) {
+            .teams-grid {
+                grid-template-columns: 1fr;
+            }
+            body { padding: 10px; }
+        }
+    </style>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Bangers&family=Press+Start+2P&family=Russo+One&family=Anton&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <div class="navbar">
+            <div class="nav-brand">
+                <span></span> PMGC PRO CONTROL PANEL
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item active" onclick="showPage('dashboard', event)">
+                    <span></span> DASHBOARD
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('custom', event)">
+                    <span></span> CUSTOM
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('statistics', event)">
+                    <span></span> STATISTICS
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('settings', event)">
+                    <span></span> SETTINGS
+                </a>
+            </div>
+            <div class="nav-right">
+                <a href="pmgc-scoreboard.html" target="_blank" class="nav-item">
+                    <span></span> SCOREBOARD
+                </a>
+                <div class="nav-item" onclick="showNotification('Help menu')">
+                    <span></span> ?
+                </div>
+            </div>
+        </div>
+
+        <h1>PMGC PRO CONTROL PANEL</h1>
+        
+        <div class="info-box">
+            <strong>🔗 เชื่อมต่อสกอร์บอร์ด:</strong> 
+            <a href="pmgc-scoreboard.html" target="_blank">เปิดสกอร์บอร์ด</a> 
+            <span style="color:#8b98a9; margin-left:10px;">คลิกโลโก้เพื่ออัปโหลดรูป</span>
+        </div>
+        
+        <div class="header-control" id="teamsHeader">
+            <div class="btn-group">
+                <button class="btn btn-reset-all" onclick="resetAll()">RESET คะแนน</button>
+                <button class="btn btn-reset-logos" onclick="resetAllLogos()">RESET LOGOS</button>
+                <button class="btn btn-reset-names" onclick="resetAllNames()">RESET ชื่อ</button>
+                <button class="btn btn-clear-names" onclick="clearAllNames()">ลบชื่อทั้งหมด</button>
+                <button class="btn btn-add-team" onclick="addNewTeam()">ADD TEAM</button>
+            </div>
+        </div>
+
+        <!-- Save Match Section -->
+        <div class="save-match-section" id="saveMatchSection">
+            <div class="save-match-title">
+                <span></span> SAVE MATCH RESULTS
+            </div>
+            <div class="match-selector-save">
+                <select id="saveMatchSelect">
+                    <option value="1">Match 1 - Erangel</option>
+                    <option value="2">Match 2 - Miramar</option>
+                    <option value="3">Match 3 - Sanhok</option>
+                    <option value="4">Match 4 - Vikendi</option>
+                    <option value="5">Match 5 - Erangel</option>
+                </select>
+                <button class="btn-save-match" onclick="saveCurrentMatch()">
+                    <span></span> SAVE TO MATCH
+                </button>
+            </div>
+            <div class="match-status" id="matchStatus">
+                ยังไม่ได้บันทึก
+            </div>
+        </div>
+
+        <div class="main-content" id="mainContent">
+            <!-- Teams Grid -->
+            <div class="teams-grid" id="teamsGrid"></div>
+            
+            <!-- Statistics Container -->
+            <div id="statsContainer" style="display: none;">
+                <div class="match-toolbar">
+                    <div class="match-toolbar-title">
+                        MATCH SELECTOR
+                    </div>
+                    <div class="match-selector-view">
+                        <select id="viewMatchSelect" onchange="viewMatch()">
+                            <option value="1">Match 1 - Erangel</option>
+                            <option value="2">Match 2 - Miramar</option>
+                            <option value="3">Match 3 - Sanhok</option>
+                            <option value="4">Match 4 - Vikendi</option>
+                            <option value="5">Match 5 - Erangel</option>
+                        </select>
+                        <span class="match-date-display" id="currentMatchDate">12 March 2026</span>
+                    </div>
+                </div>
+                
+                <div class="stats-toolbar">
+                    <div class="toolbar-title">
+                        STATISTICS TOOLS
+                    </div>
+                    <div class="toolbar-buttons">
+                        <input type="file" id="bgImageUpload" accept="image/*" style="display: none;" onchange="handleBgImageUpload(this)">
+                        <button class="btn-tool btn-upload-bg" onclick="document.getElementById('bgImageUpload').click()">
+                            UPLOAD BACKGROUND
+                        </button>
+                        <span class="bg-file-name" id="bgFileName">ไม่มีรูปพื้นหลัง</span>
+                        <button class="btn-tool btn-reset-bg" onclick="resetBg()">
+                            RESET
+                        </button>
+                        <button class="btn-tool btn-download-png" onclick="downloadAsPNG()">
+                            DOWNLOAD PNG
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-container" id="statsContainer_bg">
+                    <div class="stats-header">
+                        <h2 id="statsTitle">
+                            PMGC MATCH STATISTICS - <span id="matchNameDisplay">Match 1: Erangel</span>
+                        </h2>
+                    </div>
+                    
+                    <table class="matches-table" id="matchTable">
+                        <thead>
+                            <tr>
+                                <th>RANK</th>
+                                <th>TEAM</th>
+                                <th>KILLS</th>
+                                <th>POSITION</th>
+                                <th>MATCH PTS</th>
+                                <th>TOTAL PTS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchTableBody"></tbody>
+                    </table>
+                    
+                    <div class="summary-box">
+                        <div class="summary-item">
+                            <div class="summary-label">MATCH WINNER</div>
+                            <div class="summary-value" id="matchWinner">-</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">MOST KILLS</div>
+                            <div class="summary-value" id="mostKills">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">MOST KILL TEAM</div>
+                            <div class="summary-value" id="mostKillTeam">-</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">TOTAL TEAMS</div>
+                            <div class="summary-value" id="totalTeams">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Custom Container -->
+            <div id="customContainer" style="display: none;">
+                <div class="custom-container">
+                    <div class="custom-header">
+                        <span>🎨</span>
+                        <h2>CUSTOM SCOREBOARD</h2>
+                    </div>
+                    
+                    <div class="preview-box">
+                        <div class="preview-title" id="previewTitle">OVERALL STANDING</div>
+                        <div style="color:#8b98a9; font-size:14px;">ตัวอย่างฟอนต์ สี ขนาด และข้อความ</div>
+                    </div>
+                    
+                    <div class="custom-grid">
+                        <div class="custom-card">
+                            <h3>🔤 FONT STYLE</h3>
+                            <div class="font-selector">
+                                <div class="font-option" onclick="selectFont('Black Ops One', this)" data-font="Black Ops One">
+                                    <span class="font-preview" style="font-family: 'Black Ops One';">BLACK OPS</span>
+                                    <span class="font-preview small">Black Ops One</span>
+                                </div>
+                                <div class="font-option" onclick="selectFont('Bangers', this)" data-font="Bangers">
+                                    <span class="font-preview" style="font-family: 'Bangers';">BANGERS</span>
+                                    <span class="font-preview small">Bangers</span>
+                                </div>
+                                <div class="font-option" onclick="selectFont('Press Start 2P', this)" data-font="Press Start 2P">
+                                    <span class="font-preview" style="font-family: 'Press Start 2P'; font-size: 14px;">PIXEL</span>
+                                    <span class="font-preview small">Press Start 2P</span>
+                                </div>
+                                <div class="font-option" onclick="selectFont('Russo One', this)" data-font="Russo One">
+                                    <span class="font-preview" style="font-family: 'Russo One';">RUSSO</span>
+                                    <span class="font-preview small">Russo One</span>
+                                </div>
+                                <div class="font-option" onclick="selectFont('Anton', this)" data-font="Anton">
+                                    <span class="font-preview" style="font-family: 'Anton';">ANTON</span>
+                                    <span class="font-preview small">Anton</span>
+                                </div>
+                                <div class="font-option" onclick="selectFont('Oswald', this)" data-font="Oswald">
+                                    <span class="font-preview" style="font-family: 'Oswald'; font-weight: 700;">OSWALD</span>
+                                    <span class="font-preview small">Oswald</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="custom-card">
+                            <h3>🎨 COLORS</h3>
+                            <div class="color-picker-group">
+                                <label>Header BG</label>
+                                <input type="color" id="headerColor" value="#ff4d4d" onchange="updatePreview()">
+                                <span class="color-value" id="headerColorValue">#ff4d4d</span>
+                            </div>
+                            <div class="color-picker-group">
+                                <label>Title Color</label>
+                                <input type="color" id="titleColor" value="#ffb347" onchange="updatePreview()">
+                                <span class="color-value" id="titleColorValue">#ffb347</span>
+                            </div>
+                            <div class="color-picker-group">
+                                <label>Border</label>
+                                <input type="color" id="borderColor" value="#ff4d4d" onchange="updatePreview()">
+                                <span class="color-value" id="borderColorValue">#ff4d4d</span>
+                            </div>
+                            <div class="color-picker-group">
+                                <label>Background</label>
+                                <input type="color" id="bgColor" value="#14181f" onchange="updatePreview()">
+                                <span class="color-value" id="bgColorValue">#14181f</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px;">
+                        <div class="custom-card">
+                            <h3>📏 TITLE SIZE</h3>
+                            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                                <input type="range" id="titleSize" min="16" max="48" value="36" step="1" style="flex: 1;" onchange="updatePreview()">
+                                <span class="color-value" id="titleSizeValue">36px</span>
+                            </div>
+                            <div style="margin-top: 10px; color: #8b98a9; font-size: 12px;">
+                                ลากเพื่อปรับขนาด (16px - 48px)
+                            </div>
+                        </div>
+                        
+                        <div class="custom-card">
+                            <h3>✏️ TITLE TEXT</h3>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" id="titleText" value="OVERALL STANDING" 
+                                       style="flex: 1; background: #1e232b; border: 1px solid #ff4d4d; color: white; padding: 8px 12px; border-radius: 6px; font-size: 14px;"
+                                       placeholder="พิมพ์ข้อความที่ต้องการ"
+                                       onkeyup="updatePreview()"
+                                       onchange="updatePreview()">
+                            </div>
+                            <div style="margin-top: 10px; color: #8b98a9; font-size: 12px;">
+                                พิมพ์ข้อความที่ต้องการแสดง (สูงสุด 30 ตัวอักษร)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-apply-custom" onclick="applyCustomSettings()">
+                        APPLY TO SCOREBOARD
+                    </button>
+                    <button class="btn-reset-custom" onclick="resetCustomSettings()">
+                        RESET TO DEFAULT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ข้อมูลเริ่มต้น ==========
+        let teams = [
+            { name: 'A7', logo: null, pts: 115, elims: 0, players: [1,1,1,1] },
+            { name: 'DRX', logo: null, pts: 97, elims: 0, players: [1,1,1,1] },
+            { name: 'APG', logo: null, pts: 89, elims: 0, players: [1,1,1,1] },
+            { name: 'REG', logo: null, pts: 84, elims: 0, players: [1,1,1,1] },
+            { name: 'ULF', logo: null, pts: 82, elims: 0, players: [1,1,1,1] },
+            { name: 'AE', logo: null, pts: 77, elims: 0, players: [1,1,1,1] },
+            { name: 'DX', logo: null, pts: 74, elims: 0, players: [1,1,1,1] },
+            { name: 'R8', logo: null, pts: 73, elims: 1, players: [1,2,1,1] },
+            { name: 'goat', logo: null, pts: 68, elims: 0, players: [1,1,1,1] },
+            { name: 'MAD', logo: null, pts: 65, elims: 3, players: [1,2,2,1] },
+            { name: 'TT', logo: null, pts: 64, elims: 2, players: [1,2,1,1] },
+            { name: 'OK', logo: null, pts: 62, elims: 0, players: [1,1,1,1] },
+            { name: 'FL', logo: null, pts: 61, elims: 0, players: [1,1,1,1] },
+            { name: 'EA', logo: null, pts: 56, elims: 1, players: [1,2,1,1] },
+            { name: 'VPE', logo: null, pts: 40, elims: 3, players: [0,0,0,0] },
+            { name: 'KARA', logo: null, pts: 40, elims: 3, players: [0,0,0,0] }
+        ];
+
+        let savedMatches = {
+            1: { saved: false, results: [] },
+            2: { saved: false, results: [] },
+            3: { saved: false, results: [] },
+            4: { saved: false, results: [] },
+            5: { saved: false, results: [] }
+        };
+
+        const matchNames = {
+            1: 'Match 1: Erangel',
+            2: 'Match 2: Miramar',
+            3: 'Match 3: Sanhok',
+            4: 'Match 4: Vikendi',
+            5: 'Match 5: Erangel'
+        };
+
+        let selectedFont = 'Black Ops One';
+        let customSettings = {
+            headerColor: '#ff4d4d',
+            titleColor: '#ffb347',
+            borderColor: '#ff4d4d',
+            bgColor: '#14181f',
+            fontFamily: 'Black Ops One',
+            titleSize: 36,
+            titleText: 'OVERALL STANDING'
+        };
+
+        // ========== ฟังก์ชันคำนวณคะแนนรวม ==========
+        function calculateTotal(team) {
+            return (team.pts || 0) + (team.elims || 0);
+        }
+
+        // ========== ฟังก์ชันบันทึกและแจ้งเตือน ==========
+        function saveToStorage() {
+            localStorage.setItem('pmgcTeamsLogo', JSON.stringify(teams));
+            // ส่ง event แจ้งเตือนไปยังหน้าอื่น
+            try {
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'pmgcTeamsLogo',
+                    newValue: JSON.stringify(teams)
+                }));
+            } catch (e) {
+                // ถ้า browser ไม่ support การสร้าง StorageEvent ก็ไม่เป็นไร
+            }
+        }
+
+        function showNotification(msg, isError = false) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed; top: 20px; right: 20px; background: ${isError ? '#ef4444' : '#22c55e'};
+                color: ${isError ? 'white' : 'black'}; padding: 8px 16px; border-radius: 6px;
+                font-weight: bold; z-index: 9999; font-size: 13px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            `;
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
+        }
+
+        // ========== ฟังก์ชันจัดการ Navigation ==========
+        function showPage(page, event) {
+            if (event) {
+                event.preventDefault();
+                // หา nav item ที่ถูกคลิกอย่างปลอดภัย
+                const navItem = event.target.closest('.nav-item');
+                if (navItem) {
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    navItem.classList.add('active');
+                }
+            }
+            
+            const teamsGrid = document.getElementById('teamsGrid');
+            const teamsHeader = document.getElementById('teamsHeader');
+            const saveMatchSection = document.getElementById('saveMatchSection');
+            const statsContainer = document.getElementById('statsContainer');
+            const customContainer = document.getElementById('customContainer');
+            
+            if (page === 'statistics') {
+                teamsGrid.style.display = 'none';
+                teamsHeader.style.display = 'none';
+                saveMatchSection.style.display = 'none';
+                customContainer.style.display = 'none';
+                statsContainer.style.display = 'block';
+                viewMatch();
+                showNotification('📊 แสดงสถิติการแข่งขัน');
+            } else if (page === 'custom') {
+                teamsGrid.style.display = 'none';
+                teamsHeader.style.display = 'none';
+                saveMatchSection.style.display = 'none';
+                statsContainer.style.display = 'none';
+                customContainer.style.display = 'block';
+                showNotification('🎨 หน้าปรับแต่งสกอร์บอร์ด');
+            } else if (page === 'dashboard') {
+                teamsGrid.style.display = 'grid';
+                teamsHeader.style.display = 'flex';
+                saveMatchSection.style.display = 'flex';
+                statsContainer.style.display = 'none';
+                customContainer.style.display = 'none';
+                updateMatchStatus();
+                showNotification('📊 กลับสู่หน้าหลัก');
+            } else if (page === 'settings') {
+                showNotification('⚙️ หน้าการตั้งค่า (กำลังพัฒนา)');
+            }
+        }
+
+        // ========== ฟังก์ชัน Render Teams ==========
+        function renderTeams() {
+            const grid = document.getElementById('teamsGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            teams.forEach((team, teamIdx) => {
+                const totalAlive = team.players.filter(p => p === 1).length;
+                const isEliminated = totalAlive === 0;
+                team.elims = team.players.filter(p => p === 0).length;
+                
+                const card = document.createElement('div');
+                card.className = `team-card ${isEliminated ? 'eliminated' : ''}`;
+                
+                const logoHtml = team.logo 
+                    ? `<img src="${team.logo}" alt="logo" style="width:100%; height:100%; object-fit:contain;">` 
+                    : `<div class="logo-placeholder">+<br>LOGO</div>`;
+                
+                card.innerHTML = `
+                    <div class="delete-team-btn" onclick="deleteTeam(${teamIdx})">✕</div>
+                    <div class="team-header">
+                        <div class="logo-container" onclick="uploadLogo(${teamIdx})">
+                            ${logoHtml}
+                        </div>
+                        <input type="file" id="logo-${teamIdx}" class="hidden-input" accept="image/*" onchange="handleLogoUpload(${teamIdx}, this)">
+                        <input type="text" class="team-name-input" value="${team.name || ''}" 
+                               placeholder="ไม่มีชื่อทีม" onchange="updateTeamName(${teamIdx}, this.value)">
+                        <span class="team-number">TEAM ${teamIdx + 1}</span>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-label">PTS</div>
+                            <input type="number" class="stat-input" value="${team.pts}" min="0" step="1"
+                                   onchange="updatePts(${teamIdx}, this.value)" onkeypress="if(event.key==='Enter') this.blur()">
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">ELIMS</div>
+                            <input type="number" class="stat-input elims-input" value="${team.elims}" min="0" step="1"
+                                   onchange="updateElims(${teamIdx}, this.value)" onkeypress="if(event.key==='Enter') this.blur()">
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">TOTAL</div>
+                            <div class="total-value" id="total-${teamIdx}">${calculateTotal(team)}</div>
+                        </div>
+                    </div>
+                    <div class="player-status">
+                        ${team.players.map((status, playerIdx) => `
+                            <div class="player-dot ${status === 1 ? 'alive' : status === 2 ? 'knocked' : 'eliminated'}"
+                                 onclick="cyclePlayerStatus(${teamIdx}, ${playerIdx})">
+                                P${playerIdx + 1}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-kill" onclick="addKill(${teamIdx})">+1 KILL</button>
+                        <button class="btn-elim" onclick="eliminateTeam(${teamIdx})">☠️ ELIM</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            saveToStorage();
+        }
+
+        // ========== ฟังก์ชันจัดการทีม ==========
+        function uploadLogo(teamIdx) {
+            document.getElementById(`logo-${teamIdx}`).click();
+        }
+
+        function handleLogoUpload(teamIdx, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showNotification('❌ กรุณาเลือกไฟล์รูปภาพเท่านั้น', true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                teams[teamIdx].logo = e.target.result;
+                renderTeams();
+                showNotification(`✅ อัปโหลดโลโก้ ${teams[teamIdx].name || 'ทีม'} สำเร็จ`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateTeamName(teamIdx, newName) {
+            teams[teamIdx].name = newName;
+            saveToStorage();
+        }
+
+        function updatePts(teamIdx, value) {
+            const newPts = parseInt(value) || 0;
+            teams[teamIdx].pts = newPts;
+            updateTotal(teamIdx);
+            saveToStorage();
+        }
+
+        function updateElims(teamIdx, value) {
+            const newElims = parseInt(value) || 0;
+            teams[teamIdx].elims = newElims;
+            updateTotal(teamIdx);
+            saveToStorage();
+        }
+
+        function updateTotal(teamIdx) {
+            const totalElement = document.getElementById(`total-${teamIdx}`);
+            if (totalElement) {
+                totalElement.textContent = calculateTotal(teams[teamIdx]);
+            }
+        }
+
+        function cyclePlayerStatus(teamIdx, playerIdx) {
+            const current = teams[teamIdx].players[playerIdx];
+            teams[teamIdx].players[playerIdx] = current === 1 ? 2 : current === 2 ? 0 : 1;
+            renderTeams();
+        }
+
+        function addKill(teamIdx) {
+            teams[teamIdx].pts += 1;
+            renderTeams();
+        }
+
+        function eliminateTeam(teamIdx) {
+            teams[teamIdx].players = [0,0,0,0];
+            renderTeams();
+        }
+
+        function deleteTeam(teamIdx) {
+            if (confirm(`ลบทีม ${teams[teamIdx].name || 'นี้'} ออก?`)) {
+                teams.splice(teamIdx, 1);
+                renderTeams();
+                showNotification('🗑️ ลบทีมเรียบร้อย');
+            }
+        }
+
+        function addNewTeam() {
+            const newTeam = {
+                name: '',
+                logo: null,
+                pts: 0,
+                elims: 0,
+                players: [1,1,1,1]
+            };
+            teams.push(newTeam);
+            renderTeams();
+            setTimeout(() => {
+                const grid = document.getElementById('teamsGrid');
+                const lastCard = grid.lastElementChild;
+                if (lastCard) lastCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+            showNotification('➕ เพิ่มทีมใหม่เรียบร้อย');
+        }
+
+        // ========== ฟังก์ชันรีเซ็ต ==========
+        function resetAll() {
+            if (confirm('รีเซ็ตคะแนนทั้งหมดเป็น 0?')) {
+                teams = teams.map(team => ({
+                    name: team.name,
+                    logo: team.logo,
+                    pts: 0,
+                    elims: 0,
+                    players: [1,1,1,1]
+                }));
+                renderTeams();
+                showNotification('🔄 รีเซ็ตคะแนนเป็น 0');
+            }
+        }
+
+        function resetAllLogos() {
+            if (confirm('ลบโลโก้ทั้งหมด?')) {
+                teams = teams.map(team => ({ ...team, logo: null }));
+                renderTeams();
+                showNotification('🖼️ ลบโลโก้ทั้งหมด');
+            }
+        }
+
+        function resetAllNames() {
+            const defaultNames = ['A7', 'DRX', 'APG', 'REG', 'ULF', 'AE', 'DX', 'R8', 'goat', 'MAD', 'TT', 'OK', 'FL', 'EA', 'VPE', 'KARA'];
+            if (confirm('รีเซ็ตชื่อทีมกลับไปเป็นชื่อเริ่มต้น?')) {
+                teams = teams.map((team, index) => ({
+                    ...team,
+                    name: defaultNames[index] || `Team ${index + 1}`
+                }));
+                renderTeams();
+                showNotification('🏷️ รีเซ็ตชื่อทีม');
+            }
+        }
+
+        function clearAllNames() {
+            if (confirm('ลบชื่อทีมทั้งหมด?')) {
+                teams = teams.map(team => ({ ...team, name: '' }));
+                renderTeams();
+                showNotification('🗑️ ลบชื่อทีมทั้งหมด');
+            }
+        }
+
+        // ========== ฟังก์ชันบันทึกแมตช์ ==========
+        function loadSavedMatches() {
+            const saved = localStorage.getItem('pmgcSavedMatches');
+            if (saved) {
+                try {
+                    savedMatches = JSON.parse(saved);
+                } catch (e) {}
+            }
+            updateMatchStatus();
+        }
+
+        function saveSavedMatches() {
+            localStorage.setItem('pmgcSavedMatches', JSON.stringify(savedMatches));
+        }
+
+        function updateMatchStatus() {
+            const matchId = document.getElementById('saveMatchSelect').value;
+            const status = savedMatches[matchId]?.saved ? '✅ บันทึกแล้ว' : '⏱️ ยังไม่ได้บันทึก';
+            document.getElementById('matchStatus').textContent = status;
+        }
+
+        function saveCurrentMatch() {
+            const matchId = document.getElementById('saveMatchSelect').value;
+            
+            const results = teams.map(team => {
+                const totalPts = calculateTotal(team);
+                return {
+                    team: team.name,
+                    logo: team.logo,
+                    kills: team.elims,
+                    position: Math.floor(Math.random() * 16) + 1,
+                    matchPts: team.elims + (team.pts > 100 ? 10 : Math.floor(team.pts / 10)),
+                    totalPts: totalPts
+                };
+            });
+            
+            results.sort((a, b) => b.totalPts - a.totalPts);
+            
+            results.forEach((result, index) => {
+                result.position = index + 1;
+            });
+            
+            savedMatches[matchId] = {
+                saved: true,
+                results: results,
+                date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+            };
+            
+            saveSavedMatches();
+            updateMatchStatus();
+            
+            if (document.getElementById('statsContainer').style.display === 'block') {
+                viewMatch();
+            }
+            
+            showNotification(`✅ บันทึกผล Match ${matchId} เรียบร้อย`);
+        }
+
+        function viewMatch() {
+            const matchId = document.getElementById('viewMatchSelect').value;
+            const matchData = savedMatches[matchId];
+            
+            document.getElementById('matchNameDisplay').textContent = matchNames[matchId];
+            
+            if (!matchData || !matchData.saved) {
+                document.getElementById('matchTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #8b98a9;">
+                            ⚠️ ยังไม่มีข้อมูล Match ${matchId} <br>
+                            กรุณาบันทึกผลการแข่งขันจากหน้า Dashboard
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('matchWinner').textContent = '-';
+                document.getElementById('mostKills').textContent = '0';
+                document.getElementById('mostKillTeam').textContent = '-';
+                document.getElementById('totalTeams').textContent = '0';
+                document.getElementById('currentMatchDate').textContent = matchData?.date || 'No data';
+                return;
+            }
+            
+            const sortedResults = [...matchData.results].sort((a, b) => b.totalPts - a.totalPts);
+            
+            const tbody = document.getElementById('matchTableBody');
+            tbody.innerHTML = '';
+            
+            sortedResults.forEach((result, idx) => {
+                const row = document.createElement('tr');
+                const logoHtml = result.logo ? `<img src="${result.logo}" alt="logo">` : `<span>🏴</span>`;
+                
+                row.innerHTML = `
+                    <td><span class="rank-badge">#${idx + 1}</span></td>
+                    <td class="team-name-col">
+                        <div class="team-logo-small">${logoHtml}</div>
+                        ${result.team || '???'}
+                        ${matchData.saved ? '<span class="saved-badge">Saved</span>' : ''}
+                    </td>
+                    <td>${result.kills}</td>
+                    <td>#${result.position}</td>
+                    <td>${result.matchPts}</td>
+                    <td>${result.totalPts}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            const winner = sortedResults[0];
+            const mostKills = sortedResults.reduce((max, t) => t.kills > max.kills ? t : max);
+            
+            document.getElementById('matchWinner').textContent = winner.team || '???';
+            document.getElementById('mostKills').textContent = mostKills.kills;
+            document.getElementById('mostKillTeam').textContent = mostKills.team || '???';
+            document.getElementById('totalTeams').textContent = sortedResults.length;
+            document.getElementById('currentMatchDate').textContent = matchData.date || '12 March 2026';
+        }
+
+        // ========== ฟังก์ชันจัดการรูปพื้นหลังและดาวน์โหลด ==========
+        function handleBgImageUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showNotification('❌ กรุณาเลือกไฟล์รูปภาพเท่านั้น', true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const container = document.getElementById('statsContainer_bg');
+                container.style.background = `url('${e.target.result}') center/cover`;
+                container.classList.add('has-bg-image');
+                document.getElementById('bgFileName').textContent = file.name;
+                showNotification('✅ ใช้รูปพื้นหลังเรียบร้อย');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetBg() {
+            const container = document.getElementById('statsContainer_bg');
+            container.style.background = '';
+            container.classList.remove('has-bg-image');
+            document.getElementById('bgFileName').textContent = 'ไม่มีรูปพื้นหลัง';
+            document.getElementById('bgImageUpload').value = '';
+        }
+
+        function downloadAsPNG() {
+            const matchId = document.getElementById('viewMatchSelect').value;
+            const matchData = savedMatches[matchId];
+            
+            if (!matchData || !matchData.saved) {
+                showNotification('⚠️ ไม่มีข้อมูลที่จะดาวน์โหลด', true);
+                return;
+            }
+            
+            const element = document.getElementById('statsContainer_bg');
+            showNotification('⏳ กำลังสร้างภาพ...');
+            
+            const options = {
+                scale: 2,
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                backgroundColor: null,
+                allowTaint: true,
+                useCORS: true,
+                logging: false
+            };
+            
+            html2canvas(element, options).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `PMGC_Match_${matchId}_${matchNames[matchId].replace(/[:\s]/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showNotification('📥 ดาวน์โหลดรูปภาพเรียบร้อย');
+            }).catch(error => {
+                console.error('Error:', error);
+                showNotification('❌ เกิดข้อผิดพลาด', true);
+            });
+        }
+
+        // ========== ฟังก์ชันปรับแต่ง (Custom) ==========
+        function loadCustomSettings() {
+            const saved = localStorage.getItem('pmgcCustomSettings');
+            if (saved) {
+                try {
+                    customSettings = JSON.parse(saved);
+                    selectedFont = customSettings.fontFamily || 'Black Ops One';
+                    
+                    document.getElementById('headerColor').value = customSettings.headerColor || '#ff4d4d';
+                    document.getElementById('titleColor').value = customSettings.titleColor || '#ffb347';
+                    document.getElementById('borderColor').value = customSettings.borderColor || '#ff4d4d';
+                    document.getElementById('bgColor').value = customSettings.bgColor || '#14181f';
+                    document.getElementById('titleSize').value = customSettings.titleSize || 36;
+                    document.getElementById('titleText').value = customSettings.titleText || 'OVERALL STANDING';
+                    
+                    document.getElementById('titleSizeValue').textContent = (customSettings.titleSize || 36) + 'px';
+                    
+                    document.getElementById('headerColorValue').textContent = customSettings.headerColor || '#ff4d4d';
+                    document.getElementById('titleColorValue').textContent = customSettings.titleColor || '#ffb347';
+                    document.getElementById('borderColorValue').textContent = customSettings.borderColor || '#ff4d4d';
+                    document.getElementById('bgColorValue').textContent = customSettings.bgColor || '#14181f';
+                    
+                    updatePreview();
+                    highlightSelectedFont();
+                } catch (e) {}
+            }
+        }
+
+        function saveCustomSettings() {
+            localStorage.setItem('pmgcCustomSettings', JSON.stringify(customSettings));
+            // ส่ง event แจ้งเตือนไปยัง scoreboard
+            try {
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'pmgcCustomSettings',
+                    newValue: JSON.stringify(customSettings)
+                }));
+            } catch (e) {}
+        }
+
+        function updatePreview() {
+            const headerColor = document.getElementById('headerColor').value;
+            const titleColor = document.getElementById('titleColor').value;
+            const borderColor = document.getElementById('borderColor').value;
+            const bgColor = document.getElementById('bgColor').value;
+            const titleSize = document.getElementById('titleSize').value;
+            const titleText = document.getElementById('titleText').value;
+            
+            document.getElementById('headerColorValue').textContent = headerColor;
+            document.getElementById('titleColorValue').textContent = titleColor;
+            document.getElementById('borderColorValue').textContent = borderColor;
+            document.getElementById('bgColorValue').textContent = bgColor;
+            document.getElementById('titleSizeValue').textContent = titleSize + 'px';
+            
+            const preview = document.getElementById('previewTitle');
+            preview.textContent = titleText || 'OVERALL STANDING';
+            preview.style.color = titleColor;
+            preview.style.fontFamily = selectedFont;
+            preview.style.fontSize = titleSize + 'px';
+            preview.style.textShadow = `3px 3px 0 ${borderColor}80`;
+            
+            customSettings = {
+                headerColor: headerColor,
+                titleColor: titleColor,
+                borderColor: borderColor,
+                bgColor: bgColor,
+                fontFamily: selectedFont,
+                titleSize: parseInt(titleSize),
+                titleText: titleText || 'OVERALL STANDING'
+            };
+        }
+
+        function selectFont(font, element) {
+            selectedFont = font;
+            document.querySelectorAll('.font-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            updatePreview();
+        }
+
+        function highlightSelectedFont() {
+            document.querySelectorAll('.font-option').forEach(opt => {
+                const font = opt.getAttribute('data-font');
+                if (font === selectedFont) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function applyCustomSettings() {
+            saveCustomSettings();
+            showNotification('✅ นำค่าไปใช้กับ Scoreboard เรียบร้อย');
+        }
+
+        function resetCustomSettings() {
+            customSettings = {
+                headerColor: '#ff4d4d',
+                titleColor: '#ffb347',
+                borderColor: '#ff4d4d',
+                bgColor: '#14181f',
+                fontFamily: 'Black Ops One',
+                titleSize: 36,
+                titleText: 'OVERALL STANDING'
+            };
+            selectedFont = 'Black Ops One';
+            
+            document.getElementById('headerColor').value = '#ff4d4d';
+            document.getElementById('titleColor').value = '#ffb347';
+            document.getElementById('borderColor').value = '#ff4d4d';
+            document.getElementById('bgColor').value = '#14181f';
+            document.getElementById('titleSize').value = 36;
+            document.getElementById('titleText').value = 'OVERALL STANDING';
+            
+            document.getElementById('headerColorValue').textContent = '#ff4d4d';
+            document.getElementById('titleColorValue').textContent = '#ffb347';
+            document.getElementById('borderColorValue').textContent = '#ff4d4d';
+            document.getElementById('bgColorValue').textContent = '#14181f';
+            document.getElementById('titleSizeValue').textContent = '36px';
+            
+            highlightSelectedFont();
+            updatePreview();
+            saveCustomSettings();
+            showNotification('🔄 รีเซ็ตเป็นค่าเริ่มต้น');
+        }
+
+        // ========== โหลดข้อมูลเริ่มต้น ==========
+        function loadFromStorage() {
+            const saved = localStorage.getItem('pmgcTeamsLogo');
+            if (saved) {
+                try {
+                    teams = JSON.parse(saved);
+                } catch (e) {}
+            }
+            renderTeams();
+            loadSavedMatches();
+            loadCustomSettings();
+        }
+
+        // เริ่มต้นการทำงาน
+        loadFromStorage();
+    </script>
+</body>
+</html>
