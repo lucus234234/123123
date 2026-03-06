@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PMGC Pro Scoreboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Bangers&family=Press+Start+2P&family=Russo+One&family=Anton&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Arial', sans-serif;
+        }
+        body {
+            background: transparent;
+            min-height: 100vh;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            padding: 10px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .scoreboard-container {
+            width: 550px;
+            background: rgba(20, 24, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ff4d4d;
+            box-shadow: -5px 0 20px rgba(255,77,77,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: auto;
+            min-height: min-content;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: -5px 0 20px rgba(255,77,77,0.3); }
+            50% { box-shadow: -5px 0 30px rgba(255,77,77,0.8); }
+            100% { box-shadow: -5px 0 20px rgba(255,77,77,0.3); }
+        }
+        
+        .scoreboard-header {
+            background: linear-gradient(90deg, #ff4d4d, #ff9f4d);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .scoreboard-header h1 {
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            font-family: 'Black Ops One', cursive;
+        }
+        .live-badge {
+            background: rgba(0,0,0,0.3);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 35px 140px 45px 45px 50px 55px;
+            padding: 6px 10px;
+            background: rgba(30, 35, 43, 0.95);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px solid #ff4d4d;
+            color: #ffb347;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+        .table-header div {
+            text-align: center;
+        }
+        .table-header div:first-child {
+            text-align: left;
+        }
+        .table-header div:nth-child(2) {
+            text-align: left;
+        }
+        
+        .teams-list {
+            flex: 0 1 auto;
+            padding: 2px 0;
+            background: transparent;
+            overflow-y: visible;
+        }
+        
+        .team-row {
+            display: grid;
+            grid-template-columns: 35px 140px 45px 45px 50px 55px;
+            padding: 6px 10px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,77,77,0.15);
+            transition: 0.2s;
+            font-size: 12px;
+            background: transparent;
+        }
+        .team-row:hover {
+            background: rgba(255,77,77,0.15);
+            backdrop-filter: blur(5px);
+        }
+        .team-row.eliminated {
+            opacity: 0.5;
+            background: rgba(26, 30, 38, 0.5);
+        }
+        .team-row:last-child {
+            border-bottom: none;
+        }
+        
+        .rank {
+            font-weight: 900;
+            font-size: 14px;
+            color: #ffb347;
+            text-align: left;
+            text-shadow: 0 0 10px rgba(255,180,71,0.3);
+        }
+        
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-align: left;
+        }
+        .team-logo {
+            width: 24px;
+            height: 24px;
+            background: rgba(30, 35, 43, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255,77,77,0.3);
+        }
+        .team-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .team-logo span {
+            font-size: 16px;
+        }
+        .team-name {
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+        
+        .pts, .elims, .total {
+            text-align: center;
+            font-weight: bold;
+        }
+        .pts { 
+            color: #3b82f6;
+            font-size: 13px;
+            text-shadow: 0 0 10px rgba(59,130,246,0.3);
+        }
+        .elims { 
+            color: #22c55e;
+            font-size: 13px;
+            text-shadow: 0 0 10px rgba(34,197,94,0.3);
+        }
+        .total { 
+            color: #ffd700;
+            font-size: 14px;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .player-dots {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+        .player-mini-dot {
+            width: 12px;
+            height: 12px;
+        }
+        .player-mini-dot.alive { 
+            background: #22c55e; 
+            box-shadow: 0 0 8px #22c55e;
+        }
+        .player-mini-dot.knocked { 
+            background: #f97316; 
+            box-shadow: 0 0 8px #f97316;
+        }
+        .player-mini-dot.eliminated { 
+            background: #6b7280; 
+            box-shadow: 0 0 5px rgba(107,114,128,0.5);
+        }
+        
+        .scoreboard-footer {
+            background: linear-gradient(90deg, rgba(30,35,43,0.95), rgba(20,24,31,0.95));
+            backdrop-filter: blur(5px);
+            border-top: 2px solid #ff4d4d;
+            padding: 8px 12px;
+            display: flex;
+            gap: 15px;
+            color: #8b98a9;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+        .scoreboard-footer div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .scoreboard-footer span {
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            min-width: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+        .footer-dot {
+            width: 10px;
+            height: 10px;
+        }
+        .footer-dot.alive { 
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+        .footer-dot.knocked { 
+            background: #f97316;
+            box-shadow: 0 0 8px #f97316;
+        }
+        .footer-dot.eliminated { 
+            background: #6b7280;
+            box-shadow: 0 0 5px rgba(107,114,128,0.5);
+        }
+        
+        .empty-message {
+            padding: 20px;
+            text-align: center;
+            color: #8b98a9;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard-container" id="scoreboardContainer">
+        <div class="scoreboard-header" id="scoreboardHeader">
+            <h1 id="scoreboardTitle">OVERALL STANDING</h1>
+            <div class="live-badge">LIVE</div>
+        </div>
+       
+        <div class="table-header">
+            <div>#</div>
+            <div>TEAM</div>
+            <div>PTS</div>
+            <div>ELIMS</div>
+            <div>TOTAL</div>
+            <div>STATUS</div>
+        </div>
+        
+        <div class="teams-list" id="teamsList"></div>
+        
+        <div class="scoreboard-footer">
+            <div>
+                <div class="footer-dot alive"></div>
+                <span id="aliveCount">0</span>
+            </div>
+            <div>
+                <div class="footer-dot knocked"></div>
+                <span id="knockedCount">0</span>
+            </div>
+            <div>
+                <div class="footer-dot eliminated"></div>
+                <span id="eliminatedCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ตัวแปรหลัก ==========
+        let teams = [];
+        let animationTimeout = null;
+        
+        // ========== ฟังก์ชันปรับสี ==========
+        function adjustColor(hex, percent) {
+            hex = hex.replace('#', '');
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            
+            r = Math.min(255, Math.max(0, r + percent));
+            g = Math.min(255, Math.max(0, g + percent));
+            b = Math.min(255, Math.max(0, b + percent));
+            
+            return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // ========== ฟังก์ชันคำนวณคะแนนรวม ==========
+        function calculateTotal(team) {
+            return (team.pts || 0) + (team.elims || 0);
+        }
+
+        // ========== ฟังก์ชันนำค่า Custom Settings มาใช้ ==========
+        function applyCustomSettings(settings) {
+            const header = document.querySelector('.scoreboard-header');
+            const title = document.querySelector('.scoreboard-header h1');
+            const container = document.querySelector('.scoreboard-container');
+            const tableHeader = document.querySelector('.table-header');
+            const footer = document.querySelector('.scoreboard-footer');
+            
+            if (settings) {
+                if (settings.headerColor) {
+                    header.style.background = `linear-gradient(90deg, ${settings.headerColor}, ${adjustColor(settings.headerColor, 40)})`;
+                }
+                
+                if (settings.titleColor) {
+                    title.style.color = settings.titleColor;
+                }
+                
+                if (settings.fontFamily) {
+                    title.style.fontFamily = settings.fontFamily;
+                }
+                
+                if (settings.titleSize) {
+                    title.style.fontSize = settings.titleSize + 'px';
+                }
+                
+                if (settings.titleText) {
+                    title.textContent = settings.titleText;
+                }
+                
+                if (settings.borderColor) {
+                    container.style.borderColor = settings.borderColor;
+                    tableHeader.style.borderBottomColor = settings.borderColor;
+                    footer.style.borderTopColor = settings.borderColor;
+                }
+                
+                if (settings.bgColor) {
+                    container.style.background = settings.bgColor;
+                }
+            }
+        }
+
+        // ========== ฟังก์ชันโหลด Custom Settings ==========
+        function loadCustomSettings() {
+            const saved = localStorage.getItem('pmgcCustomSettings');
+            if (saved) {
+                try {
+                    const settings = JSON.parse(saved);
+                    applyCustomSettings(settings);
+                } catch (e) {
+                    console.error('Error loading custom settings:', e);
+                }
+            }
+        }
+
+        // ========== ฟังก์ชันโหลดข้อมูลทีม ==========
+        function loadTeams() {
+            const saved = localStorage.getItem('pmgcTeamsLogo');
+            if (saved) {
+                try {
+                    const newTeams = JSON.parse(saved);
+                    // ตรวจสอบว่ามีการเปลี่ยนแปลงหรือไม่
+                    if (JSON.stringify(newTeams) !== JSON.stringify(teams)) {
+                        teams = newTeams;
+                        renderStanding();
+                        return true; // มีการเปลี่ยนแปลง
+                    }
+                } catch (e) {
+                    console.error('Error parsing teams:', e);
+                }
+            }
+            return false; // ไม่มีการเปลี่ยนแปลง
+        }
+
+        // ========== ฟังก์ชันแสดง Animation ==========
+        function triggerAnimation() {
+            if (animationTimeout) {
+                clearTimeout(animationTimeout);
+            }
+            
+            const container = document.querySelector('.scoreboard-container');
+            container.style.animation = 'none';
+            container.offsetHeight; // force reflow
+            container.style.animation = 'pulse 0.5s';
+            
+            animationTimeout = setTimeout(() => {
+                container.style.animation = 'none';
+            }, 500);
+        }
+
+        // ========== ฟังก์ชัน Render สกอร์บอร์ด ==========
+        function renderStanding() {
+            const list = document.getElementById('teamsList');
+            if (!list) return;
+            
+            // ถ้าไม่มีข้อมูลทีม
+            if (!teams || teams.length === 0) {
+                list.innerHTML = '<div class="empty-message">ไม่มีข้อมูลทีม กรุณาเพิ่มทีมใน Control Panel</div>';
+                document.getElementById('aliveCount').textContent = '0';
+                document.getElementById('knockedCount').textContent = '0';
+                document.getElementById('eliminatedCount').textContent = '0';
+                return;
+            }
+            
+            list.innerHTML = '';
+            
+            let alive = 0, knocked = 0, eliminated = 0;
+            
+            // คำนวณคะแนนรวม
+            const teamsWithTotal = teams.map(team => ({
+                ...team,
+                total: calculateTotal(team)
+            }));
+            
+            // เรียงตามคะแนนรวม
+            const sorted = [...teamsWithTotal].sort((a, b) => b.total - a.total);
+            
+            sorted.forEach((team, idx) => {
+                const totalAlive = team.players ? team.players.filter(p => p === 1).length : 0;
+                const totalKnocked = team.players ? team.players.filter(p => p === 2).length : 0;
+                const totalEliminated = team.players ? team.players.filter(p => p === 0).length : 0;
+                
+                alive += totalAlive;
+                knocked += totalKnocked;
+                eliminated += totalEliminated;
+                
+                const row = document.createElement('div');
+                row.className = `team-row ${totalAlive === 0 ? 'eliminated' : ''}`;
+                
+                // สร้างโลโก้
+                let logoHtml = team.logo 
+                    ? `<img src="${team.logo}" alt="logo" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ctext%20x%3D%222%22%20y%3D%2218%22%20font-family%3D%22Arial%22%20font-size%3D%2216%22%20fill%3D%22%238b98a9%22%3E🏴%3C%2Ftext%3E%3C%2Fsvg%3E'">` 
+                    : `<span>🏴</span>`;
+                
+                // สร้างสถานะผู้เล่น
+                let playerDots = '';
+                if (team.players && team.players.length > 0) {
+                    playerDots = team.players.map(p => {
+                        let statusClass = '';
+                        if (p === 1) statusClass = 'alive';
+                        else if (p === 2) statusClass = 'knocked';
+                        else statusClass = 'eliminated';
+                        return `<div class="player-mini-dot ${statusClass}"></div>`;
+                    }).join('');
+                } else {
+                    playerDots = '<span>-</span>';
+                }
+                
+                row.innerHTML = `
+                    <div class="rank">${idx + 1}</div>
+                    <div class="team-info">
+                        <div class="team-logo">${logoHtml}</div>
+                        <span class="team-name" title="${team.name || '???'}">${team.name || '???'}</span>
+                    </div>
+                    <div class="pts">${team.pts || 0}</div>
+                    <div class="elims">${team.elims || 0}</div>
+                    <div class="total">${team.total}</div>
+                    <div class="player-dots">${playerDots}</div>
+                `;
+                list.appendChild(row);
+            });
+            
+            // อัปเดตตัวเลขนับสถานะ
+            document.getElementById('aliveCount').textContent = alive;
+            document.getElementById('knockedCount').textContent = knocked;
+            document.getElementById('eliminatedCount').textContent = eliminated;
+        }
+
+        // ========== ฟังก์ชันโหลดและแสดงผล ==========
+        function loadAndRender() {
+            const changed = loadTeams();
+            if (changed) {
+                triggerAnimation();
+            }
+        }
+
+        // ========== Event Listeners ==========
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'pmgcTeamsLogo') {
+                loadAndRender();
+            }
+            if (e.key === 'pmgcCustomSettings') {
+                try {
+                    const settings = JSON.parse(e.newValue);
+                    applyCustomSettings(settings);
+                    triggerAnimation();
+                } catch (error) {
+                    console.error('Error parsing custom settings:', error);
+                }
+            }
+        });
+
+        // ========== เริ่มต้นการทำงาน ==========
+        function init() {
+            loadTeams();
+            loadCustomSettings();
+            
+            // ตรวจสอบการเปลี่ยนแปลงทุกๆ 1 วินาที (เผื่อกรณี storage event ไม่ทำงาน)
+            setInterval(loadAndRender, 1000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
